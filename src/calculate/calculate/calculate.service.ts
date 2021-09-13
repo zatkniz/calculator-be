@@ -1,26 +1,41 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCalculateDto } from './dto/create-calculate.dto';
-import { UpdateCalculateDto } from './dto/update-calculate.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import Big from 'big.js';
+import { CalculateDto } from './dto/calculate.dto';
 
 @Injectable()
 export class CalculateService {
-  create(createCalculateDto: CreateCalculateDto) {
-    return 'This action adds a new calculate';
-  }
+  calculate({ numberOne, numberTwo, operation }: CalculateDto) {
+    const firstNumber: Big = Big(numberOne);
+    const secondNumber: Big = Big(numberTwo);
 
-  findAll() {
-    return `This action returns all calculate`;
-  }
+    if (operation === '+') {
+      return firstNumber.plus(secondNumber).toString();
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} calculate`;
-  }
+    if (operation === '-') {
+      return firstNumber.minus(secondNumber).toString();
+    }
 
-  update(id: number, updateCalculateDto: UpdateCalculateDto) {
-    return `This action updates a #${id} calculate`;
-  }
+    if (operation === 'x') {
+      return firstNumber.times(secondNumber).toString();
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} calculate`;
+    try {
+      if (operation === '÷') {
+        return firstNumber.div(secondNumber).toString();
+      }
+    } catch {
+      throw new BadRequestException('Undefined');
+    }
+
+    try {
+      if (operation === '%') {
+        return firstNumber.mod(secondNumber).toString();
+      }
+    } catch {
+      throw new BadRequestException('Undefined');
+    }
+
+    throw Error(`Unknown operation '${operation}'`);
   }
 }
